@@ -120,12 +120,28 @@ int list_len(struct list* list) {
  *    in  is an element from in_list
  */
 void list_map1(void(*f) (element_t*, element_t), struct list* out_list, struct list* in_list) {
-	// DONE
+	
+	// Iterate through the entire in_list
 	for (size_t i = 0; i < in_list->len; i++)
 	{
+		// For every item in in_list, call [f], giving it:
+		// 1. a pointer to our local variable element_t (which is void*)
+		// 2. the next element_t from in_list. this is a pointer that points directly to some data
 		element_t result = NULL;
 		f(&result, in_list->data[i]);
 		list_append(out_list, result);
+		
+		// Equivalent implementation:
+		element_t result = NULL;
+		element_t* result_ptr = &result;
+		f(result_ptr, in_list->data[i]);
+		list_append(out_list, result);
+		
+		// Alternative implementation: append NULL to list_append (a "nullptr"),
+		// then make a pointer to this nullptr and have [f] overwrite it.
+		list_append(out_list, NULL);
+		f(&out_list->data[i], in_list->data[i]);
+		// (done)
 	}
 }
 
@@ -142,12 +158,22 @@ void list_map1(void(*f) (element_t*, element_t), struct list* out_list, struct l
  *    in1  is an element from in_list1
  */
 void list_map2(void(*f) (element_t*, element_t, element_t), struct list* out_list, struct list* in_list0, struct list* in_list1) {
-	// DONE
+	// The end index for iteration is the smaller of the two lengths (of in_list0, in_list1)
+	// "Is in_list0 shorter? if so then take its length. if not, then take in_list1's"
 	int the_length = in_list0->len < in_list1->len ? in_list0->len : in_list1->len;
+	
+	// Iterate through both lists.
 	for (size_t i = 0; i < the_length; i++)
 	{
+		// Declare a void pointer and initialize it to NULL
+		// (element_t IS void pointer)
 		element_t result = NULL;
+		// Pass it to f "by reference"
 		f(&result, in_list0->data[i], in_list1->data[i]);
+		// Simply append the result to the out_list
+		// list_append takes a pointer to a list, and a void pointer. That pointer points to some data.
+		// list_append doesn't care what kind of data it is. its [data] field is just an array of pointers
+		//			i.e. an array of void pointers
 		list_append(out_list, result);
 	}
 }
@@ -162,7 +188,6 @@ void list_map2(void(*f) (element_t*, element_t, element_t), struct list* out_lis
  *    in1 is an element from in_list
  */
 void list_foldl(void(*f) (element_t*, element_t, element_t), element_t* out_element_p, struct list* in_list) {
-	// DONE
 	for (size_t i = 0; i < in_list->len; i++)
 	{
 		f(out_element_p, *out_element_p, in_list->data[i]);
@@ -179,7 +204,6 @@ void list_foldl(void(*f) (element_t*, element_t, element_t), element_t* out_elem
  *    returns true (1) iff in should be included in out_list and 0 otherwise
  */
 void list_filter(int(*f) (element_t), struct list* out_list, struct list* in_list) {
-	// DONE
 	for (size_t i = 0; i < in_list->len; i++)
 	{
 		if (f(in_list->data[i])) {
