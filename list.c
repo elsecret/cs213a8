@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "list.h"
-// VERSION INSIDE UBC SERVER
 
 #define INITIAL_SIZE  10
 #define GROWTH_FACTOR 5
